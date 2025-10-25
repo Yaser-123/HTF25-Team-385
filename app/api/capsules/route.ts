@@ -78,7 +78,7 @@ export async function POST(request: NextRequest) {
 
     // Parse request body
     const body = await request.json();
-    const { content, unlockDate } = body;
+    const { content, unlockDate, question, answer } = body;
 
     // Validate input
     if (!content || !unlockDate) {
@@ -100,8 +100,19 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Validate question/answer pair
+    if ((question && !answer) || (!question && answer)) {
+      return NextResponse.json(
+        { error: 'Both question and answer must be provided together' },
+        { status: 400 }
+      );
+    }
+
     // Encrypt content before storing
     const encryptedContent = encrypt(content);
+    
+    // Encrypt answer if provided (already lowercase from client)
+    const encryptedAnswer = answer ? encrypt(answer) : null;
 
     // Insert into database
     const [newCapsule] = await db
@@ -110,6 +121,8 @@ export async function POST(request: NextRequest) {
         userId,
         content: encryptedContent,
         unlockDate: unlock,
+        question: question || null,
+        answer: encryptedAnswer,
       })
       .returning();
 

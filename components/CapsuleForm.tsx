@@ -18,6 +18,8 @@ export default function CapsuleForm({ onCapsuleCreated }: CapsuleFormProps) {
   const [unlockDate, setUnlockDate] = useState('');
   const [unlockTime, setUnlockTime] = useState('');
   const [unlockPeriod, setUnlockPeriod] = useState<'AM' | 'PM'>('PM');
+  const [question, setQuestion] = useState('');
+  const [answer, setAnswer] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -74,6 +76,17 @@ export default function CapsuleForm({ onCapsuleCreated }: CapsuleFormProps) {
       return;
     }
 
+    // Validate question/answer pair
+    if (question && !answer) {
+      setError('Please provide an answer for the security question');
+      return;
+    }
+
+    if (!question && answer) {
+      setError('Please provide a question for the security answer');
+      return;
+    }
+
     // Parse the time with AM/PM
     const [hours, minutes] = unlockTime.split(':').map(Number);
     let hour24 = hours;
@@ -115,6 +128,8 @@ export default function CapsuleForm({ onCapsuleCreated }: CapsuleFormProps) {
         body: JSON.stringify({
           content,
           unlockDate: selectedDate.toISOString(),
+          question: question || null,
+          answer: answer ? answer.toLowerCase() : null,
         }),
       });
 
@@ -132,6 +147,8 @@ export default function CapsuleForm({ onCapsuleCreated }: CapsuleFormProps) {
       setUnlockDate('');
       setUnlockTime('');
       setUnlockPeriod('PM');
+      setQuestion('');
+      setAnswer('');
 
       // Reset file input
       const fileInput = document.getElementById('media-upload') as HTMLInputElement;
@@ -280,6 +297,53 @@ export default function CapsuleForm({ onCapsuleCreated }: CapsuleFormProps) {
           <p className="text-xs text-gray-400 mt-2">
             ⏰ Your capsule will unlock at least 1 minute from now
           </p>
+        </div>
+
+        {/* Optional Security Question */}
+        <div className="border-t border-white/10 pt-6">
+          <h3 className="text-sm font-semibold mb-4 text-gray-300">
+            🔐 Optional Security Question
+          </h3>
+          <p className="text-xs text-gray-400 mb-4">
+            Add an extra layer of security. Anyone accessing this capsule will need to answer correctly.
+          </p>
+          
+          <div className="space-y-4">
+            <div>
+              <label htmlFor="security-question" className="block text-sm font-medium mb-2">
+                Security Question
+              </label>
+              <input
+                id="security-question"
+                type="text"
+                value={question}
+                onChange={(e) => setQuestion(e.target.value)}
+                placeholder="e.g., What was our first pet's name?"
+                maxLength={200}
+                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+              />
+            </div>
+
+            {question && (
+              <div>
+                <label htmlFor="security-answer" className="block text-sm font-medium mb-2">
+                  Answer
+                </label>
+                <input
+                  id="security-answer"
+                  type="text"
+                  value={answer}
+                  onChange={(e) => setAnswer(e.target.value)}
+                  placeholder="Enter the answer (case-insensitive)"
+                  maxLength={100}
+                  className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                />
+                <p className="text-xs text-gray-400 mt-1">
+                  💡 Answer will be checked case-insensitively
+                </p>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Submit Button */}
