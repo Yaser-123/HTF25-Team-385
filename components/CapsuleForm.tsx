@@ -189,7 +189,7 @@ export default function CapsuleForm({ onCapsuleCreated }: CapsuleFormProps) {
 
   return (
     <div className="glass rounded-xl p-6 shadow-xl">
-      <h2 className="text-2xl font-bold mb-6 bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+      <h2 className="text-2xl font-bold mb-6 text-white">
         Create a Time Capsule
       </h2>
 
@@ -216,7 +216,7 @@ export default function CapsuleForm({ onCapsuleCreated }: CapsuleFormProps) {
             value={textContent}
             onChange={(e) => setTextContent(e.target.value)}
             placeholder="Write a message to your future self..."
-            className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 resize-none"
+            className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary resize-none"
             rows={6}
           />
         </div>
@@ -231,7 +231,7 @@ export default function CapsuleForm({ onCapsuleCreated }: CapsuleFormProps) {
             type="file"
             accept="image/*,video/*"
             onChange={handleFileChange}
-            className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-purple-600 file:text-white hover:file:bg-purple-700 file:cursor-pointer"
+            className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-primary file:text-white hover:file:bg-primary-hover file:cursor-pointer"
           />
           {mediaFile && (
             <p className="mt-2 text-sm text-green-400">
@@ -258,7 +258,7 @@ export default function CapsuleForm({ onCapsuleCreated }: CapsuleFormProps) {
               onChange={(e) => setUnlockDate(e.target.value)}
               min={getMinDate()}
               required
-              className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+              className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
             />
           </div>
 
@@ -274,7 +274,7 @@ export default function CapsuleForm({ onCapsuleCreated }: CapsuleFormProps) {
                 value={unlockTime}
                 onChange={(e) => setUnlockTime(e.target.value)}
                 required
-                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
               />
             </div>
 
@@ -286,7 +286,7 @@ export default function CapsuleForm({ onCapsuleCreated }: CapsuleFormProps) {
                 id="unlock-period"
                 value={unlockPeriod}
                 onChange={(e) => setUnlockPeriod(e.target.value as 'AM' | 'PM')}
-                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 cursor-pointer"
+                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary cursor-pointer"
               >
                 <option value="AM" className="bg-gray-800">AM</option>
                 <option value="PM" className="bg-gray-800">PM</option>
@@ -320,7 +320,7 @@ export default function CapsuleForm({ onCapsuleCreated }: CapsuleFormProps) {
                 onChange={(e) => setQuestion(e.target.value)}
                 placeholder="e.g., What was our first pet's name?"
                 maxLength={200}
-                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
               />
             </div>
 
@@ -336,7 +336,7 @@ export default function CapsuleForm({ onCapsuleCreated }: CapsuleFormProps) {
                   onChange={(e) => setAnswer(e.target.value)}
                   placeholder="Enter the answer (case-insensitive)"
                   maxLength={100}
-                  className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                 />
                 <p className="text-xs text-gray-400 mt-1">
                   💡 Answer will be checked case-insensitively
@@ -350,7 +350,7 @@ export default function CapsuleForm({ onCapsuleCreated }: CapsuleFormProps) {
         <button
           type="submit"
           disabled={isSubmitting}
-          className="w-full px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 rounded-lg font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
+          className="w-full px-6 py-3 bg-gradient-to-r bg-primary hover:bg-primary-hover rounded-lg font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
         >
           {isSubmitting ? (
             <span className="flex items-center justify-center">

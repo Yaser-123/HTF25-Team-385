@@ -29,7 +29,7 @@ export default function RootLayout({
                 {/* Logo */}
                 <Link href="/" className="flex items-center space-x-2">
                   <div className="text-3xl">🌌</div>
-                  <h1 className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+                  <h1 className="text-2xl font-bold text-primary">
                     Celestia
                   </h1>
                 </Link>
@@ -39,13 +39,13 @@ export default function RootLayout({
                   <SignedOut>
                     <Link
                       href="/sign-in"
-                      className="px-4 py-2 rounded-lg bg-purple-600 hover:bg-purple-700 transition-colors"
+                      className="px-4 py-2 rounded-lg bg-primary hover:bg-primary-hover transition-colors"
                     >
                       Sign In
                     </Link>
                     <Link
                       href="/sign-up"
-                      className="px-4 py-2 rounded-lg border border-purple-400 hover:bg-purple-400/10 transition-colors"
+                      className="px-4 py-2 rounded-lg border border-border-color hover:bg-primary/10 transition-colors"
                     >
                       Sign Up
                     </Link>

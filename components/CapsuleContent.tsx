@@ -115,12 +115,12 @@ export default function CapsuleContent({
 
   // Show unlocked content
   return (
-    <div className="bg-white/5 backdrop-blur-sm rounded-xl p-6 border border-green-400/30">
+    <div className="bg-white/5 backdrop-blur-sm rounded-xl p-6 border border-success/30">
       <div className="flex items-center mb-4">
-        <svg className="w-8 h-8 text-green-400 mr-3" fill="currentColor" viewBox="0 0 20 20">
+        <svg className="w-8 h-8 text-success mr-3" fill="currentColor" viewBox="0 0 20 20">
           <path d="M10 2a5 5 0 00-5 5v2a2 2 0 00-2 2v5a2 2 0 002 2h10a2 2 0 002-2v-5a2 2 0 00-2-2H7V7a3 3 0 015.905-.75 1 1 0 001.937-.5A5.002 5.002 0 0010 2z" />
         </svg>
-        <h2 className="text-2xl font-bold text-green-400">🔓 Capsule Unlocked</h2>
+        <h2 className="text-2xl font-bold text-success">🔓 Capsule Unlocked</h2>
       </div>
 
       {/* Text Content */}

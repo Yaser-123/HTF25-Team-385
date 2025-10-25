@@ -176,7 +176,7 @@ export default function Home() {
           <div className="max-w-4xl mx-auto text-center">
             {/* Hero Section */}
             <div className="animate-fadeIn">
-              <h1 className="text-6xl font-bold mb-6 bg-gradient-to-r from-purple-400 via-pink-400 to-purple-400 bg-clip-text text-transparent">
+              <h1 className="text-6xl font-bold mb-6 text-white">
                 Welcome to Celestia
               </h1>
               <p className="text-xl text-gray-300 mb-8">
@@ -214,13 +214,13 @@ export default function Home() {
               <div className="flex gap-4 justify-center">
                 <Link
                   href="/sign-up"
-                  className="px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 rounded-lg font-semibold text-lg transition-all shadow-lg"
+                  className="px-8 py-4 bg-gradient-to-r bg-primary hover:bg-primary-hover rounded-lg font-semibold text-lg transition-all shadow-lg"
                 >
                   Get Started Free
                 </Link>
                 <Link
                   href="/sign-in"
-                  className="px-8 py-4 border border-purple-400 hover:bg-purple-400/10 rounded-lg font-semibold text-lg transition-all"
+                  className="px-8 py-4 border border-primary hover:bg-primary/10 rounded-lg font-semibold text-lg transition-all"
                 >
                   Sign In
                 </Link>
@@ -232,7 +232,7 @@ export default function Home() {
               <h2 className="text-3xl font-bold mb-8">How It Works</h2>
               <div className="grid md:grid-cols-3 gap-8">
                 <div className="text-center">
-                  <div className="w-16 h-16 bg-purple-600 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl font-bold">
+                  <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto mb-4 text-2xl font-bold">
                     1
                   </div>
                   <h3 className="text-xl font-semibold mb-2">Create</h3>
@@ -242,7 +242,7 @@ export default function Home() {
                 </div>
                 
                 <div className="text-center">
-                  <div className="w-16 h-16 bg-purple-600 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl font-bold">
+                  <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto mb-4 text-2xl font-bold">
                     2
                   </div>
                   <h3 className="text-xl font-semibold mb-2">Lock</h3>
@@ -252,7 +252,7 @@ export default function Home() {
                 </div>
                 
                 <div className="text-center">
-                  <div className="w-16 h-16 bg-purple-600 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl font-bold">
+                  <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center mx-auto mb-4 text-2xl font-bold">
                     3
                   </div>
                   <h3 className="text-xl font-semibold mb-2">Unlock</h3>
@@ -273,7 +273,7 @@ export default function Home() {
           <div className="flex-shrink-0 container mx-auto px-4 py-6">
             <div className="max-w-6xl mx-auto">
               <div className="mb-4">
-                <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+                <h1 className="text-4xl font-bold mb-2 text-white">
                   Your Time Capsules
                 </h1>
                 <p className="text-gray-400">
@@ -306,13 +306,13 @@ export default function Home() {
                     
                     {/* Countdown Timer with Share Button */}
                     {countdown && nextCapsuleId && (
-                      <div className="glass px-4 py-3 rounded-lg border border-purple-500/50">
+                      <div className="glass px-4 py-3 rounded-lg border border-border-color/30">
                         <div className="flex items-center justify-between gap-3">
                           <div className="flex items-center gap-2 text-sm">
-                            <span className="text-purple-400 text-lg">⏰</span>
+                            <span className="text-primary text-lg">⏰</span>
                             <div className="flex flex-col sm:flex-row sm:items-center sm:gap-2">
                               <span className="text-gray-300 text-xs sm:text-sm">Next unlock in:</span>
-                              <span className="font-mono font-bold text-purple-400 text-base sm:text-sm">
+                              <span className="font-mono font-bold text-primary text-base sm:text-sm">
                                 {countdown}
                               </span>
                             </div>
@@ -320,7 +320,7 @@ export default function Home() {
                           
                           <button
                             onClick={handleShareUpcoming}
-                            className="flex items-center gap-2 px-3 py-1.5 bg-purple-600 hover:bg-purple-700 rounded-lg transition-colors text-sm font-medium whitespace-nowrap"
+                            className="flex items-center gap-2 px-3 py-1.5 bg-primary hover:bg-primary-hover rounded-lg transition-colors text-sm font-medium whitespace-nowrap"
                             title="Share countdown link"
                           >
                             {copied ? (
@@ -348,7 +348,7 @@ export default function Home() {
                   <div className="flex-1 overflow-y-auto pr-2 pb-4">
                     {isLoading ? (
                       <div className="glass rounded-xl p-12 text-center">
-                        <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500"></div>
+                        <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
                         <p className="mt-4 text-gray-400">Loading your capsules...</p>
                       </div>
                     ) : error ? (
@@ -362,7 +362,7 @@ export default function Home() {
                         <p className="text-gray-400">
                           {countdown ? (
                             <>
-                              Your next capsule unlocks in <span className="text-purple-400 font-semibold">{countdown}</span>
+                              Your next capsule unlocks in <span className="text-primary font-semibold">{countdown}</span>
                             </>
                           ) : (
                             'Create your first time capsule and wait for it to unlock!'

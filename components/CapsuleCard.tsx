@@ -176,7 +176,7 @@ export default function CapsuleCard({ capsule, onDelete }: CapsuleCardProps) {
       </div>
 
       {/* Unlock Date Badge */}
-      <div className="mb-4 inline-block px-3 py-1 bg-purple-500/20 border border-purple-500/50 rounded-full text-sm">
+      <div className="mb-4 inline-block px-3 py-1 bg-success/20 border border-success/50 rounded-full text-sm">
         🔓 Unlocked: {formatDate(capsule.unlockDate)}
       </div>
 
@@ -189,7 +189,7 @@ export default function CapsuleCard({ capsule, onDelete }: CapsuleCardProps) {
           {text.length > 200 && (
             <button
               onClick={() => setShowFullContent(!showFullContent)}
-              className="mt-2 text-purple-400 hover:text-purple-300 text-sm transition-colors"
+              className="mt-2 text-primary hover:text-primary-hover text-sm transition-colors"
             >
               {showFullContent ? 'Show less' : 'Read more...'}
             </button>

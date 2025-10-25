@@ -48,13 +48,13 @@ export default async function CapsulePage({ params }: { params: Promise<{ id: st
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 py-12 px-4">
+    <div className="min-h-screen bg-gradient-to-br from-background via-gray-900 to-background py-12 px-4">
       <div className="max-w-3xl mx-auto">
         <div className="bg-white/10 backdrop-blur-md rounded-2xl p-8 shadow-2xl border border-white/20">
           <div className="flex items-center justify-between mb-6">
             <h1 className="text-3xl font-bold text-white">Time Capsule</h1>
             {isOwner && (
-              <span className="px-4 py-2 bg-purple-500/30 backdrop-blur-sm rounded-full text-white text-sm">
+              <span className="px-4 py-2 bg-primary/30 backdrop-blur-sm rounded-full text-white text-sm">
                 Your Capsule
               </span>
             )}
@@ -94,7 +94,7 @@ export default async function CapsulePage({ params }: { params: Promise<{ id: st
           <div className="mt-8 text-center">
             <a
               href="/"
-              className="inline-block px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors"
+              className="inline-block px-6 py-3 bg-primary hover:bg-primary-hover text-white rounded-lg transition-colors"
             >
               ← Back to Home
             </a>
