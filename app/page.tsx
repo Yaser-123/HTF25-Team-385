@@ -17,7 +17,9 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
   const [nextUnlockTime, setNextUnlockTime] = useState<Date | null>(null);
+  const [nextCapsuleId, setNextCapsuleId] = useState<string | null>(null);
   const [countdown, setCountdown] = useState<string>('');
+  const [copied, setCopied] = useState(false);
 
   /**
    * Fetches capsules from the API
@@ -66,9 +68,10 @@ export default function Home() {
         if (response.ok) {
           const data = await response.json();
           
-          if (data.nextUnlockTime) {
+          if (data.nextUnlockTime && data.nextCapsule) {
             const nextUnlock = new Date(data.nextUnlockTime);
             setNextUnlockTime(nextUnlock);
+            setNextCapsuleId(data.nextCapsule.id);
             
             // If unlock time has passed, refresh the capsule list
             const now = new Date();
@@ -77,6 +80,7 @@ export default function Home() {
             }
           } else {
             setNextUnlockTime(null);
+            setNextCapsuleId(null);
           }
         }
       } catch (err) {
@@ -134,6 +138,35 @@ export default function Home() {
 
     return () => clearInterval(interval);
   }, [nextUnlockTime]);
+
+  /**
+   * Handle sharing upcoming capsule URL
+   */
+  const handleShareUpcoming = async () => {
+    if (!nextCapsuleId) return;
+    
+    const url = `${window.location.origin}/capsule/${nextCapsuleId}`;
+    
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (error) {
+      // Fallback for older browsers
+      const textArea = document.createElement('textarea');
+      textArea.value = url;
+      document.body.appendChild(textArea);
+      textArea.select();
+      try {
+        document.execCommand('copy');
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      } catch (err) {
+        alert('Failed to copy URL. Please copy manually: ' + url);
+      }
+      document.body.removeChild(textArea);
+    }
+  };
 
   return (
     <>
@@ -265,24 +298,50 @@ export default function Home() {
                 <div className="flex flex-col h-full overflow-hidden">
                   {/* Fixed Section Header */}
                   <div className="flex-shrink-0 mb-4">
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center justify-between mb-2">
                       <h2 className="text-2xl font-bold">
                         Unlocked Capsules ({capsules.length})
                       </h2>
-                      
-                      {/* Countdown Timer */}
-                      {countdown && (
-                        <div className="glass px-3 py-2 rounded-lg border border-purple-500/50">
-                          <div className="flex items-center gap-2 text-sm">
-                            <span className="text-purple-400">⏰</span>
-                            <span className="text-gray-300 hidden sm:inline">Next unlock in:</span>
-                            <span className="font-mono font-bold text-purple-400">
-                              {countdown}
-                            </span>
-                          </div>
-                        </div>
-                      )}
                     </div>
+                    
+                    {/* Countdown Timer with Share Button */}
+                    {countdown && nextCapsuleId && (
+                      <div className="glass px-4 py-3 rounded-lg border border-purple-500/50">
+                        <div className="flex items-center justify-between gap-3">
+                          <div className="flex items-center gap-2 text-sm">
+                            <span className="text-purple-400 text-lg">⏰</span>
+                            <div className="flex flex-col sm:flex-row sm:items-center sm:gap-2">
+                              <span className="text-gray-300 text-xs sm:text-sm">Next unlock in:</span>
+                              <span className="font-mono font-bold text-purple-400 text-base sm:text-sm">
+                                {countdown}
+                              </span>
+                            </div>
+                          </div>
+                          
+                          <button
+                            onClick={handleShareUpcoming}
+                            className="flex items-center gap-2 px-3 py-1.5 bg-purple-600 hover:bg-purple-700 rounded-lg transition-colors text-sm font-medium whitespace-nowrap"
+                            title="Share countdown link"
+                          >
+                            {copied ? (
+                              <>
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                </svg>
+                                <span className="hidden sm:inline">Copied!</span>
+                              </>
+                            ) : (
+                              <>
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+                                </svg>
+                                <span className="hidden sm:inline">Share</span>
+                              </>
+                            )}
+                          </button>
+                        </div>
+                      </div>
+                    )}
                   </div>
 
                   {/* Scrollable Capsules Content */}

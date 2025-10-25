@@ -28,9 +28,7 @@ export async function GET(request: NextRequest) {
     // Fetch the earliest upcoming capsule (not yet unlocked)
     const now = new Date();
     const upcomingCapsules = await db
-      .select({
-        unlockDate: capsules.unlockDate,
-      })
+      .select()
       .from(capsules)
       .where(
         and(
@@ -44,11 +42,17 @@ export async function GET(request: NextRequest) {
     if (upcomingCapsules.length > 0) {
       return NextResponse.json({
         nextUnlockTime: upcomingCapsules[0].unlockDate,
+        nextCapsule: {
+          id: upcomingCapsules[0].id,
+          unlockDate: upcomingCapsules[0].unlockDate,
+          createdAt: upcomingCapsules[0].createdAt,
+        },
       });
     }
 
     return NextResponse.json({
       nextUnlockTime: null,
+      nextCapsule: null,
     });
   } catch (error) {
     console.error('Error fetching upcoming capsules:', error);
