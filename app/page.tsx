@@ -16,6 +16,8 @@ export default function Home() {
   const [capsules, setCapsules] = useState<Capsule[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
+  const [nextUnlockTime, setNextUnlockTime] = useState<Date | null>(null);
+  const [countdown, setCountdown] = useState<string>('');
 
   /**
    * Fetches capsules from the API
@@ -46,11 +48,92 @@ export default function Home() {
   };
 
   /**
-   * Fetch capsules on component mount
+   * Fetch capsules on component mount and set up auto-refresh
    */
   useEffect(() => {
     fetchCapsules();
   }, []);
+
+  /**
+   * Auto-refresh when unlock time is reached
+   * Checks every 10 seconds if any capsules should be unlocked
+   */
+  useEffect(() => {
+    const checkForUnlocks = async () => {
+      // Fetch all capsules including locked ones to check unlock times
+      try {
+        const response = await fetch('/api/capsules/upcoming');
+        if (response.ok) {
+          const data = await response.json();
+          
+          if (data.nextUnlockTime) {
+            const nextUnlock = new Date(data.nextUnlockTime);
+            setNextUnlockTime(nextUnlock);
+            
+            // If unlock time has passed, refresh the capsule list
+            const now = new Date();
+            if (nextUnlock <= now) {
+              fetchCapsules();
+            }
+          } else {
+            setNextUnlockTime(null);
+          }
+        }
+      } catch (err) {
+        // Silently fail for background checks
+        console.error('Error checking for unlocks:', err);
+      }
+    };
+
+    // Check immediately
+    checkForUnlocks();
+
+    // Set up interval to check every 10 seconds
+    const interval = setInterval(checkForUnlocks, 10000);
+
+    return () => clearInterval(interval);
+  }, [capsules]);
+
+  /**
+   * Update countdown display every second
+   */
+  useEffect(() => {
+    if (!nextUnlockTime) {
+      setCountdown('');
+      return;
+    }
+
+    const updateCountdown = () => {
+      const now = new Date();
+      const diff = nextUnlockTime.getTime() - now.getTime();
+
+      if (diff <= 0) {
+        setCountdown('Unlocking now...');
+        fetchCapsules(); // Refresh immediately when time is reached
+        return;
+      }
+
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+      if (days > 0) {
+        setCountdown(`${days}d ${hours}h ${minutes}m ${seconds}s`);
+      } else if (hours > 0) {
+        setCountdown(`${hours}h ${minutes}m ${seconds}s`);
+      } else if (minutes > 0) {
+        setCountdown(`${minutes}m ${seconds}s`);
+      } else {
+        setCountdown(`${seconds}s`);
+      }
+    };
+
+    updateCountdown();
+    const interval = setInterval(updateCountdown, 1000);
+
+    return () => clearInterval(interval);
+  }, [nextUnlockTime]);
 
   return (
     <>
@@ -173,9 +256,24 @@ export default function Home() {
 
               {/* Right: Capsules List */}
               <div>
-                <h2 className="text-2xl font-bold mb-6">
-                  Unlocked Capsules ({capsules.length})
-                </h2>
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-2xl font-bold">
+                    Unlocked Capsules ({capsules.length})
+                  </h2>
+                  
+                  {/* Countdown Timer */}
+                  {countdown && (
+                    <div className="glass px-4 py-2 rounded-lg border border-purple-500/50">
+                      <div className="flex items-center gap-2 text-sm">
+                        <span className="text-purple-400">⏰</span>
+                        <span className="text-gray-300">Next unlock in:</span>
+                        <span className="font-mono font-bold text-purple-400">
+                          {countdown}
+                        </span>
+                      </div>
+                    </div>
+                  )}
+                </div>
 
                 {isLoading ? (
                   <div className="glass rounded-xl p-12 text-center">
@@ -191,7 +289,13 @@ export default function Home() {
                     <div className="text-6xl mb-4">📭</div>
                     <h3 className="text-xl font-semibold mb-2">No Unlocked Capsules Yet</h3>
                     <p className="text-gray-400">
-                      Create your first time capsule and wait for it to unlock!
+                      {countdown ? (
+                        <>
+                          Your next capsule unlocks in <span className="text-purple-400 font-semibold">{countdown}</span>
+                        </>
+                      ) : (
+                        'Create your first time capsule and wait for it to unlock!'
+                      )}
                     </p>
                   </div>
                 ) : (
