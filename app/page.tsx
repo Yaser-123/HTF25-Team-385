@@ -235,80 +235,94 @@ export default function Home() {
 
       {/* Signed In View */}
       <SignedIn>
-        <div className="container mx-auto px-4 py-8">
-          <div className="max-w-6xl mx-auto">
-            {/* Page Header */}
-            <div className="mb-8">
-              <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
-                Your Time Capsules
-              </h1>
-              <p className="text-gray-400">
-                Create new capsules and view your unlocked memories
-              </p>
-            </div>
-
-            {/* Two Column Layout */}
-            <div className="grid lg:grid-cols-2 gap-8">
-              {/* Left: Create Form */}
-              <div>
-                <CapsuleForm onCapsuleCreated={fetchCapsules} />
+        <div className="h-screen flex flex-col overflow-hidden">
+          {/* Fixed Header */}
+          <div className="flex-shrink-0 container mx-auto px-4 py-6">
+            <div className="max-w-6xl mx-auto">
+              <div className="mb-4">
+                <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+                  Your Time Capsules
+                </h1>
+                <p className="text-gray-400">
+                  Create new capsules and view your unlocked memories
+                </p>
               </div>
+            </div>
+          </div>
 
-              {/* Right: Capsules List */}
-              <div>
-                <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-2xl font-bold">
-                    Unlocked Capsules ({capsules.length})
-                  </h2>
-                  
-                  {/* Countdown Timer */}
-                  {countdown && (
-                    <div className="glass px-4 py-2 rounded-lg border border-purple-500/50">
-                      <div className="flex items-center gap-2 text-sm">
-                        <span className="text-purple-400">⏰</span>
-                        <span className="text-gray-300">Next unlock in:</span>
-                        <span className="font-mono font-bold text-purple-400">
-                          {countdown}
-                        </span>
-                      </div>
-                    </div>
-                  )}
+          {/* Scrollable Content Area */}
+          <div className="flex-1 overflow-hidden container mx-auto px-4 pb-6">
+            <div className="max-w-6xl mx-auto h-full">
+              <div className="grid lg:grid-cols-2 gap-8 h-full">
+                {/* Left: Create Form - Independently Scrollable */}
+                <div className="flex flex-col h-full overflow-hidden">
+                  <div className="flex-1 overflow-y-auto pr-2 pb-4">
+                    <CapsuleForm onCapsuleCreated={fetchCapsules} />
+                  </div>
                 </div>
 
-                {isLoading ? (
-                  <div className="glass rounded-xl p-12 text-center">
-                    <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500"></div>
-                    <p className="mt-4 text-gray-400">Loading your capsules...</p>
-                  </div>
-                ) : error ? (
-                  <div className="glass rounded-xl p-6 border border-red-500/50 bg-red-500/10">
-                    <p className="text-red-200">Error: {error}</p>
-                  </div>
-                ) : capsules.length === 0 ? (
-                  <div className="glass rounded-xl p-12 text-center">
-                    <div className="text-6xl mb-4">📭</div>
-                    <h3 className="text-xl font-semibold mb-2">No Unlocked Capsules Yet</h3>
-                    <p className="text-gray-400">
-                      {countdown ? (
-                        <>
-                          Your next capsule unlocks in <span className="text-purple-400 font-semibold">{countdown}</span>
-                        </>
-                      ) : (
-                        'Create your first time capsule and wait for it to unlock!'
+                {/* Right: Capsules List - Independently Scrollable */}
+                <div className="flex flex-col h-full overflow-hidden">
+                  {/* Fixed Section Header */}
+                  <div className="flex-shrink-0 mb-4">
+                    <div className="flex items-center justify-between">
+                      <h2 className="text-2xl font-bold">
+                        Unlocked Capsules ({capsules.length})
+                      </h2>
+                      
+                      {/* Countdown Timer */}
+                      {countdown && (
+                        <div className="glass px-3 py-2 rounded-lg border border-purple-500/50">
+                          <div className="flex items-center gap-2 text-sm">
+                            <span className="text-purple-400">⏰</span>
+                            <span className="text-gray-300 hidden sm:inline">Next unlock in:</span>
+                            <span className="font-mono font-bold text-purple-400">
+                              {countdown}
+                            </span>
+                          </div>
+                        </div>
                       )}
-                    </p>
+                    </div>
                   </div>
-                ) : (
-                  <div className="space-y-6">
-                    {capsules.map((capsule) => (
-                      <CapsuleCard
-                        key={capsule.id}
-                        capsule={capsule}
-                        onDelete={handleCapsuleDeleted}
-                      />
-                    ))}
+
+                  {/* Scrollable Capsules Content */}
+                  <div className="flex-1 overflow-y-auto pr-2 pb-4">
+                    {isLoading ? (
+                      <div className="glass rounded-xl p-12 text-center">
+                        <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500"></div>
+                        <p className="mt-4 text-gray-400">Loading your capsules...</p>
+                      </div>
+                    ) : error ? (
+                      <div className="glass rounded-xl p-6 border border-red-500/50 bg-red-500/10">
+                        <p className="text-red-200">Error: {error}</p>
+                      </div>
+                    ) : capsules.length === 0 ? (
+                      <div className="glass rounded-xl p-12 text-center">
+                        <div className="text-6xl mb-4">📭</div>
+                        <h3 className="text-xl font-semibold mb-2">No Unlocked Capsules Yet</h3>
+                        <p className="text-gray-400">
+                          {countdown ? (
+                            <>
+                              Your next capsule unlocks in <span className="text-purple-400 font-semibold">{countdown}</span>
+                            </>
+                          ) : (
+                            'Create your first time capsule and wait for it to unlock!'
+                          )}
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="space-y-6">
+                        {capsules.map((capsule) => (
+                          <CapsuleCard
+                            key={capsule.id}
+                            capsule={capsule}
+                            onDelete={handleCapsuleDeleted}
+                          />
+                        ))}
+                      </div>
+                    )}
                   </div>
-                )}
+                </div>
               </div>
             </div>
           </div>
