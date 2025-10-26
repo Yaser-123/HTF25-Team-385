@@ -69,7 +69,7 @@ export default async function CapsulePage({ params }: { params: Promise<{ id: st
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-gray-900 to-background py-12 px-4">
       <div className="max-w-3xl mx-auto">
-        <CapsulePageWrapper isUnlocked={isUnlocked}>
+        <CapsulePageWrapper isUnlocked={isUnlocked} unlockDate={unlockDate} capsuleId={id}>
           <div className="bg-white/10 backdrop-blur-md rounded-2xl p-8 shadow-2xl border border-white/20">
             <div className="flex items-center justify-between mb-6">
               <h1 className="text-3xl font-bold text-white">Time Capsule</h1>
