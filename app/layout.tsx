@@ -11,6 +11,18 @@ import Link from "next/link";
 export const metadata: Metadata = {
   title: "Celestia - Digital Time Capsule",
   description: "Preserve your memories and unlock them in the future",
+  manifest: "/manifest.json",
+  themeColor: "#177BE4",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Celestia 🌌",
+  },
+  viewport: {
+    width: "device-width",
+    initialScale: 1,
+    maximumScale: 1,
+  },
 };
 
 export default function RootLayout({
@@ -21,6 +33,13 @@ export default function RootLayout({
   return (
     <ClerkProvider>
       <html lang="en">
+        <head>
+          <link rel="manifest" href="/manifest.json" />
+          <meta name="theme-color" content="#177BE4" />
+          <meta name="apple-mobile-web-app-capable" content="yes" />
+          <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+          <meta name="apple-mobile-web-app-title" content="Celestia 🌌" />
+        </head>
         <body>
           {/* Header Navigation */}
           <header className="glass sticky top-0 z-50 border-b border-white/10">
