@@ -50,34 +50,32 @@ export default function Home() {
   };
 
   /**
-   * Fetch capsules on component mount and set up auto-refresh
+   * Fetch capsules on component mount only
    */
   useEffect(() => {
     fetchCapsules();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   /**
-   * Auto-refresh when unlock time is reached
-   * Checks every 10 seconds if any capsules should be unlocked
+   * Check for upcoming unlocks - optimized to run every 30 seconds
+   * Only checks unlock times, doesn't refetch capsules automatically
    */
   useEffect(() => {
+    let isMounted = true;
+    
     const checkForUnlocks = async () => {
-      // Fetch all capsules including locked ones to check unlock times
+      if (!isMounted) return;
+      
       try {
         const response = await fetch('/api/capsules/upcoming');
-        if (response.ok) {
+        if (response.ok && isMounted) {
           const data = await response.json();
           
           if (data.nextUnlockTime && data.nextCapsule) {
             const nextUnlock = new Date(data.nextUnlockTime);
             setNextUnlockTime(nextUnlock);
             setNextCapsuleId(data.nextCapsule.id);
-            
-            // If unlock time has passed, refresh the capsule list
-            const now = new Date();
-            if (nextUnlock <= now) {
-              fetchCapsules();
-            }
           } else {
             setNextUnlockTime(null);
             setNextCapsuleId(null);
@@ -89,14 +87,17 @@ export default function Home() {
       }
     };
 
-    // Check immediately
+    // Check immediately on mount
     checkForUnlocks();
 
-    // Set up interval to check every 10 seconds
-    const interval = setInterval(checkForUnlocks, 10000);
+    // Set up interval to check every 30 seconds (reduced from 10)
+    const interval = setInterval(checkForUnlocks, 30000);
 
-    return () => clearInterval(interval);
-  }, [capsules]);
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+    };
+  }, []); // Remove capsules dependency to prevent re-running
 
   /**
    * Update countdown display every second

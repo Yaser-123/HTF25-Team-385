@@ -49,9 +49,8 @@ export default function CapsuleContent({
         const diff = unlockDate.getTime() - now.getTime();
 
         if (diff <= 0) {
-          if (typeof window !== 'undefined') {
-            window.location.reload();
-          }
+          // Capsule should be unlocked now - stop countdown
+          setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
           return;
         }
 
