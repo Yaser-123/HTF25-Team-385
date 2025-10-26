@@ -1,4 +1,4 @@
-# 🌌 Celestia - Digital Time Capsule Web App
+<h1 id="top">🌌 Celestia – Digital Time Capsule Web App</h1>
 
 
 <div align="center">
@@ -293,6 +293,6 @@ This project is open source and available under the [MIT License](LICENSE).
 
 *Celestia - Where memories meet the future* 🌌
 
-[↑ Back to Top](#🌌-celestia---digital-time-capsule-web-app)
+[↑ Back to Top](#top)
 
 </div>
