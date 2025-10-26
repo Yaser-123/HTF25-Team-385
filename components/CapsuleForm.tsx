@@ -11,10 +11,14 @@ interface CapsuleFormProps {
   onCapsuleCreated?: () => void;
 }
 
+interface MediaItem {
+  url: string;
+  type: 'image' | 'video';
+}
+
 export default function CapsuleForm({ onCapsuleCreated }: CapsuleFormProps) {
   const [textContent, setTextContent] = useState('');
-  const [mediaFile, setMediaFile] = useState<string>('');
-  const [mediaType, setMediaType] = useState<'image' | 'video' | null>(null);
+  const [mediaFiles, setMediaFiles] = useState<MediaItem[]>([]);
   const [unlockDate, setUnlockDate] = useState('');
   const [unlockTime, setUnlockTime] = useState('');
   const [unlockPeriod, setUnlockPeriod] = useState<'AM' | 'PM'>('PM');
@@ -25,36 +29,62 @@ export default function CapsuleForm({ onCapsuleCreated }: CapsuleFormProps) {
   const [success, setSuccess] = useState('');
 
   /**
-   * Handles file upload and converts to base64
+   * Handles multiple file uploads and converts to base64
    */
   const handleFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
 
-    // Validate file size (max 5MB)
-    if (file.size > 5 * 1024 * 1024) {
-      setError('File size must be less than 5MB');
+    setError('');
+    const newMediaItems: MediaItem[] = [];
+
+    // Check total number of files
+    if (mediaFiles.length + files.length > 10) {
+      setError('Maximum 10 media files allowed');
       return;
     }
 
-    // Validate file type
-    const isImage = file.type.startsWith('image/');
-    const isVideo = file.type.startsWith('video/');
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
 
-    if (!isImage && !isVideo) {
-      setError('Only image and video files are allowed');
-      return;
+      // Validate file size (max 5MB per file)
+      if (file.size > 5 * 1024 * 1024) {
+        setError(`File "${file.name}" is too large. Max 5MB per file.`);
+        continue;
+      }
+
+      // Validate file type
+      const isImage = file.type.startsWith('image/');
+      const isVideo = file.type.startsWith('video/');
+
+      if (!isImage && !isVideo) {
+        setError(`File "${file.name}" is not a valid image or video.`);
+        continue;
+      }
+
+      // Convert to base64
+      await new Promise<void>((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          const base64String = reader.result as string;
+          newMediaItems.push({
+            url: base64String,
+            type: isImage ? 'image' : 'video',
+          });
+          resolve();
+        };
+        reader.readAsDataURL(file);
+      });
     }
 
-    setMediaType(isImage ? 'image' : 'video');
+    setMediaFiles([...mediaFiles, ...newMediaItems]);
+  };
 
-    // Convert to base64
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      const base64String = reader.result as string;
-      setMediaFile(base64String);
-    };
-    reader.readAsDataURL(file);
+  /**
+   * Remove a media item from the list
+   */
+  const removeMediaItem = (index: number) => {
+    setMediaFiles(mediaFiles.filter((_, i) => i !== index));
   };
 
   /**
@@ -66,7 +96,7 @@ export default function CapsuleForm({ onCapsuleCreated }: CapsuleFormProps) {
     setSuccess('');
 
     // Validation
-    if (!textContent && !mediaFile) {
+    if (!textContent && mediaFiles.length === 0) {
       setError('Please add some content (text or media)');
       return;
     }
@@ -113,11 +143,10 @@ export default function CapsuleForm({ onCapsuleCreated }: CapsuleFormProps) {
     setIsSubmitting(true);
 
     try {
-      // Combine text and media into JSON format
+      // Combine text and media array into JSON format
       const content = JSON.stringify({
         text: textContent,
-        media: mediaFile,
-        mediaType: mediaType,
+        media: mediaFiles,
       });
 
       const response = await fetch('/api/capsules', {
@@ -142,8 +171,7 @@ export default function CapsuleForm({ onCapsuleCreated }: CapsuleFormProps) {
       // Success! Reset form
       setSuccess('🎉 Time capsule created successfully!');
       setTextContent('');
-      setMediaFile('');
-      setMediaType(null);
+      setMediaFiles([]);
       setUnlockDate('');
       setUnlockTime('');
       setUnlockPeriod('PM');
@@ -224,18 +252,54 @@ export default function CapsuleForm({ onCapsuleCreated }: CapsuleFormProps) {
         {/* Media Upload */}
         <div>
           <label htmlFor="media-upload" className="block text-sm font-medium mb-2">
-            Add Photo or Video (Optional)
+            Add Photos or Videos (Optional, Max 10)
           </label>
           <input
             id="media-upload"
             type="file"
             accept="image/*,video/*"
+            multiple
             onChange={handleFileChange}
             className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-primary file:text-white hover:file:bg-primary-hover file:cursor-pointer"
           />
-          {mediaFile && (
-            <p className="mt-2 text-sm text-green-400">
-              ✓ {mediaType === 'image' ? 'Image' : 'Video'} uploaded successfully
+          
+          {/* Media Preview Grid */}
+          {mediaFiles.length > 0 && (
+            <div className="mt-4 grid grid-cols-2 gap-3">
+              {mediaFiles.map((media, index) => (
+                <div key={index} className="relative group">
+                  <div className="aspect-video bg-white/5 border border-white/10 rounded-lg overflow-hidden">
+                    {media.type === 'image' ? (
+                      <img
+                        src={media.url}
+                        alt={`Upload ${index + 1}`}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <video
+                        src={media.url}
+                        className="w-full h-full object-cover"
+                      />
+                    )}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => removeMediaItem(index)}
+                    className="absolute -top-2 -right-2 bg-red-500 hover:bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold opacity-0 group-hover:opacity-100 transition-opacity"
+                  >
+                    ×
+                  </button>
+                  <span className="absolute bottom-2 left-2 bg-black/70 text-white text-xs px-2 py-1 rounded">
+                    {media.type === 'image' ? '📷' : '🎥'}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
+          
+          {mediaFiles.length > 0 && (
+            <p className="mt-2 text-sm text-success">
+              ✓ {mediaFiles.length} file{mediaFiles.length > 1 ? 's' : ''} uploaded
             </p>
           )}
         </div>

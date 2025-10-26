@@ -1,7 +1,13 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import CapsuleVerification from './CapsuleVerification';
+import MediaCarousel from './MediaCarousel';
+
+interface MediaItem {
+  url: string;
+  type: 'image' | 'video';
+}
 
 interface CapsuleContentProps {
   capsuleId: string;
@@ -10,8 +16,7 @@ interface CapsuleContentProps {
   question: string | null;
   parsedContent: {
     text: string;
-    media: string | null;
-    mediaType: string | null;
+    media: MediaItem[];
   };
   unlockDate: Date;
   isOwner: boolean;
@@ -27,6 +32,8 @@ export default function CapsuleContent({
   isOwner,
 }: CapsuleContentProps) {
   const [isVerified, setIsVerified] = useState(!hasQuestion || isOwner);
+  const [showCarousel, setShowCarousel] = useState(false);
+  const [carouselIndex, setCarouselIndex] = useState(0);
   const [timeLeft, setTimeLeft] = useState({
     days: 0,
     hours: 0,
@@ -35,14 +42,16 @@ export default function CapsuleContent({
   });
 
   // Client-side countdown update
-  useState(() => {
-    if (!isUnlocked) {
+  useEffect(() => {
+    if (!isUnlocked && typeof window !== 'undefined') {
       const updateCountdown = () => {
         const now = new Date();
         const diff = unlockDate.getTime() - now.getTime();
 
         if (diff <= 0) {
-          window.location.reload();
+          if (typeof window !== 'undefined') {
+            window.location.reload();
+          }
           return;
         }
 
@@ -59,7 +68,7 @@ export default function CapsuleContent({
 
       return () => clearInterval(interval);
     }
-  });
+  }, [isUnlocked, unlockDate]);
 
   // Show locked view if not unlocked yet
   if (!isUnlocked) {
@@ -132,25 +141,70 @@ export default function CapsuleContent({
         </div>
       )}
 
-      {/* Media Content - Image */}
-      {parsedContent.media && parsedContent.mediaType === 'image' && (
-        <div className="mt-4 rounded-lg overflow-hidden border border-white/10">
-          <img
-            src={parsedContent.media}
-            alt="Capsule content"
-            className="w-full h-auto max-h-96 object-cover"
-          />
+      {/* Media Content - Single Thumbnail with Badge */}
+      {parsedContent.media && parsedContent.media.length > 0 && (
+        <div className="mt-6">
+          <div
+            className="relative w-full aspect-video rounded-lg overflow-hidden cursor-pointer group border border-success/30"
+            onClick={() => {
+              setCarouselIndex(0);
+              setShowCarousel(true);
+            }}
+          >
+            {/* First Media Thumbnail */}
+            {parsedContent.media[0].type === 'image' ? (
+              <img
+                src={parsedContent.media[0].url}
+                alt="Capsule media"
+                className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+              />
+            ) : (
+              <video
+                src={parsedContent.media[0].url}
+                className="w-full h-full object-cover"
+              />
+            )}
+            
+            {/* Dark Overlay on Hover */}
+            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-all duration-300 flex items-center justify-center">
+              <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-success/30 backdrop-blur-sm rounded-full p-4">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                </svg>
+              </div>
+            </div>
+            
+            {/* Media Count Badge */}
+            {parsedContent.media.length > 1 && (
+              <div className="absolute top-3 right-3 bg-success/80 backdrop-blur-md text-white px-3 py-1.5 rounded-full text-sm font-semibold flex items-center gap-1.5 border border-success">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                {parsedContent.media.length} items
+              </div>
+            )}
+            
+            {/* Media Type Indicator */}
+            <div className="absolute bottom-3 left-3 bg-black/80 backdrop-blur-md text-white px-2.5 py-1 rounded-lg text-xs font-medium border border-white/20">
+              {parsedContent.media[0].type === 'image' ? '📷 Photo' : '🎥 Video'}
+            </div>
+          </div>
+          
+          {/* Click to view hint */}
+          <p className="mt-2 text-xs text-success text-center font-medium">
+            ✨ Click to view {parsedContent.media.length > 1 ? 'all media in full screen' : 'in full size'}
+          </p>
         </div>
       )}
 
-      {/* Media Content - Video */}
-      {parsedContent.media && parsedContent.mediaType === 'video' && (
-        <div className="mt-4 rounded-lg overflow-hidden border border-white/10">
-          <video src={parsedContent.media} controls className="w-full h-auto max-h-96">
-            Your browser does not support the video tag.
-          </video>
-        </div>
-      )}
+      {/* Media Carousel Modal */}
+      <MediaCarousel
+        media={parsedContent.media}
+        isOpen={showCarousel}
+        onClose={() => setShowCarousel(false)}
+        initialIndex={carouselIndex}
+      />
     </div>
   );
 }

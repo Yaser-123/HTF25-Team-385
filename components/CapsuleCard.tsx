@@ -7,6 +7,12 @@
 
 import { useState } from 'react';
 import { Capsule } from '@/lib/db/schema';
+import MediaCarousel from './MediaCarousel';
+
+interface MediaItem {
+  url: string;
+  type: 'image' | 'video';
+}
 
 interface CapsuleCardProps {
   capsule: Capsule;
@@ -17,17 +23,32 @@ export default function CapsuleCard({ capsule, onDelete }: CapsuleCardProps) {
   const [isDeleting, setIsDeleting] = useState(false);
   const [showFullContent, setShowFullContent] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [showCarousel, setShowCarousel] = useState(false);
+  const [carouselIndex, setCarouselIndex] = useState(0);
 
-  // Parse content (it's stored as JSON with text and media)
-  let parsedContent;
+  // Parse content (it's stored as JSON with text and media array)
+  let parsedContent: { text: string; media: MediaItem[] };
   try {
-    parsedContent = JSON.parse(capsule.content);
+    const parsed = JSON.parse(capsule.content);
+    // Handle old format (single media) and new format (media array)
+    if (parsed.media && !Array.isArray(parsed.media)) {
+      // Old format conversion
+      parsedContent = {
+        text: parsed.text || '',
+        media: parsed.media ? [{ url: parsed.media, type: parsed.mediaType || 'image' }] : []
+      };
+    } else {
+      parsedContent = {
+        text: parsed.text || '',
+        media: parsed.media || []
+      };
+    }
   } catch {
     // Fallback if content is plain text
-    parsedContent = { text: capsule.content, media: null, mediaType: null };
+    parsedContent = { text: capsule.content, media: [] };
   }
 
-  const { text, media, mediaType } = parsedContent;
+  const { text, media } = parsedContent;
 
   /**
    * Formats date to readable string
@@ -197,28 +218,70 @@ export default function CapsuleCard({ capsule, onDelete }: CapsuleCardProps) {
         </div>
       )}
 
-      {/* Media Content */}
-      {media && mediaType === 'image' && (
-        <div className="mt-4 rounded-lg overflow-hidden">
-          <img
-            src={media}
-            alt="Capsule content"
-            className="w-full h-auto max-h-96 object-cover"
-          />
+      {/* Media Content - Single Thumbnail with Badge */}
+      {media && media.length > 0 && (
+        <div className="mt-4">
+          <div
+            className="relative w-full aspect-video rounded-lg overflow-hidden cursor-pointer group"
+            onClick={() => {
+              setCarouselIndex(0);
+              setShowCarousel(true);
+            }}
+          >
+            {/* First Media Thumbnail */}
+            {media[0].type === 'image' ? (
+              <img
+                src={media[0].url}
+                alt="Capsule media"
+                className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+              />
+            ) : (
+              <video
+                src={media[0].url}
+                className="w-full h-full object-cover"
+              />
+            )}
+            
+            {/* Dark Overlay on Hover */}
+            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-all duration-300 flex items-center justify-center">
+              <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-white/20 backdrop-blur-sm rounded-full p-4">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                </svg>
+              </div>
+            </div>
+            
+            {/* Media Count Badge */}
+            {media.length > 1 && (
+              <div className="absolute top-3 right-3 bg-black/80 backdrop-blur-md text-white px-3 py-1.5 rounded-full text-sm font-semibold flex items-center gap-1.5 border border-white/20">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                {media.length} items
+              </div>
+            )}
+            
+            {/* Media Type Indicator */}
+            <div className="absolute bottom-3 left-3 bg-black/80 backdrop-blur-md text-white px-2.5 py-1 rounded-lg text-xs font-medium border border-white/20">
+              {media[0].type === 'image' ? '📷 Photo' : '🎥 Video'}
+            </div>
+          </div>
+          
+          {/* Click to view hint */}
+          <p className="mt-2 text-xs text-gray-400 text-center">
+            Click to view {media.length > 1 ? 'all media' : 'full size'}
+          </p>
         </div>
       )}
 
-      {media && mediaType === 'video' && (
-        <div className="mt-4 rounded-lg overflow-hidden">
-          <video
-            src={media}
-            controls
-            className="w-full h-auto max-h-96"
-          >
-            Your browser does not support the video tag.
-          </video>
-        </div>
-      )}
+      {/* Media Carousel Modal */}
+      <MediaCarousel
+        media={media}
+        isOpen={showCarousel}
+        onClose={() => setShowCarousel(false)}
+        initialIndex={carouselIndex}
+      />
 
       {/* Footer */}
       <div className="mt-4 pt-4 border-t border-white/10 flex items-center justify-between text-sm text-gray-400">

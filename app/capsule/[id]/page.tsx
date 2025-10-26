@@ -6,6 +6,11 @@ import { decrypt } from '@/lib/encryption';
 import { currentUser } from '@clerk/nextjs/server';
 import CapsuleContent from '@/components/CapsuleContent';
 
+interface MediaItem {
+  url: string;
+  type: 'image' | 'video';
+}
+
 export default async function CapsulePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   
@@ -30,20 +35,33 @@ export default async function CapsulePage({ params }: { params: Promise<{ id: st
   const minutes = Math.floor((timeRemaining % (1000 * 60 * 60)) / (1000 * 60));
   const seconds = Math.floor((timeRemaining % (1000 * 60)) / 1000);
 
-  let parsedContent = { text: '', media: null, mediaType: null };
+  let parsedContent: { text: string; media: MediaItem[] } = { text: '', media: [] };
   if (isUnlocked) {
     try {
       const decryptedContent = decrypt(capsule.content);
       // Parse the JSON content
       try {
-        parsedContent = JSON.parse(decryptedContent);
+        const parsed = JSON.parse(decryptedContent);
+        // Handle old format (single media) and new format (media array)
+        if (parsed.media && !Array.isArray(parsed.media)) {
+          // Old format conversion
+          parsedContent = {
+            text: parsed.text || '',
+            media: parsed.media ? [{ url: parsed.media, type: parsed.mediaType || 'image' }] : []
+          };
+        } else {
+          parsedContent = {
+            text: parsed.text || '',
+            media: parsed.media || []
+          };
+        }
       } catch {
         // If not JSON, treat as plain text
-        parsedContent = { text: decryptedContent, media: null, mediaType: null };
+        parsedContent = { text: decryptedContent, media: [] };
       }
     } catch (error) {
       console.error('Decryption error:', error);
-      parsedContent = { text: 'Error decrypting content', media: null, mediaType: null };
+      parsedContent = { text: 'Error decrypting content', media: [] };
     }
   }
 
